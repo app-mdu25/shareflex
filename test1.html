@@ -5,13 +5,17 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-      async function initializeLIFF() {
-        await liff.init({ liffId: "2006590629-jYZkw3qx" }); // ใส่ LIFF ID ของคุณ
-        if (!liff.isLoggedIn()) {
-          liff.login();
-        }
-      }
-
+async function initializeLIFF() {
+  try {
+    await liff.init({ liffId: "2006590629-jYZkw3qx" }); // ใส่ LIFF ID ของคุณ
+    if (!liff.isLoggedIn()) {
+      liff.login();
+    }
+  } catch (error) {
+    console.error("LIFF Initialization failed", error);
+  }
+}
+      
       async function fetchDataAndSendFlex(id) {
         const response = await fetch("https://script.google.com/macros/s/AKfycbz9DQ6gCNpBCEFPRJiNyWa-pKI-xAJB6fUHJOsuvyH-J4Cl81jp1rIFnlOhljrKT2Tl/exec"); // URL ของ Apps Script API
         const data = await response.json();
