@@ -7,15 +7,24 @@
   <script src="https://static.line-scdn.net/liff/2.18.0/sdk.js"></script>
 </head>
 <body>
+  <h3>Share Flex Message</h3>
   <input type="text" id="inputId" placeholder="Enter ID">
   <button id="shareButton">Share Flex Message</button>
   <script>
+    // LIFF ID จาก LINE Developer Console
     const liffId = "2006590629-jYZkw3qx"; // ใส่ LIFF ID ของคุณ
-    const apiEndpoint = "https://script.google.com/macros/s/AKfycbw_6OroRsu5HOFfB5TqCeb_dUvdG5ZpVwOqnQaRwDkAhqKdZ-pQY-r1WzmLgJiUc0n5JQ/exec"; // ใส่ URL ของ Google Apps Script
+    const apiEndpoint = "https://script.google.com/macros/s/AKfycbw_6OroRsu5HOFfB5TqCeb_dUvdG5ZpVwOqnQaRwDkAhqKdZ-pQY-r1WzmLgJiUc0n5JQ/exec"; // ใส่ URL ของ Google Apps Script เช่น https://script.google.com/macros/s/xxx/exec
 
     async function initLiff() {
-      await liff.init({ liffId });
-      document.getElementById("shareButton").addEventListener("click", shareFlexMessage);
+      try {
+        await liff.init({ liffId });
+        console.log("LIFF Initialized");
+
+        // เพิ่ม Event Listener ให้ปุ่มแชร์
+        document.getElementById("shareButton").addEventListener("click", shareFlexMessage);
+      } catch (error) {
+        console.error("LIFF Initialization failed", error);
+      }
     }
 
     async function shareFlexMessage() {
@@ -26,9 +35,10 @@
       }
 
       try {
+        // ดึงข้อมูล Flex Message ที่ตรงกับ ID
         const response = await fetch(`${apiEndpoint}?id=${inputId}`);
         const flexMessage = await response.json();
-
+        
         if (flexMessage.error) {
           alert(flexMessage.error);
           return;
