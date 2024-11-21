@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Share Flex Message</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+      async function initializeLIFF() {
+        await liff.init({ liffId: "YOUR_LIFF_ID" }); // ใส่ LIFF ID ของคุณ
+        if (!liff.isLoggedIn()) {
+          liff.login();
+        }
+      }
+
+      async function fetchDataAndSendFlex(id) {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbz9DQ6gCNpBCEFPRJiNyWa-pKI-xAJB6fUHJOsuvyH-J4Cl81jp1rIFnlOhljrKT2Tl/exec"); // URL ของ Apps Script API
+        const data = await response.json();
+        
+        // หาข้อมูลตาม ID ที่เลือก
+        const item = data.find(row => row.id === id);
+        if (!item) {
+          Swal.fire("Error", "ไม่พบข้อมูล", "error");
+          return;
+        }
+
+        // สร้าง Flex Message Template
+        const flexMessage = {
+          type: "flex",
+          altText: "ข้อความจาก LINE",
+          contents: {
+            type: "bubble",
+            hero: {
+              type: "image",
+              url: item.imageUrl,
+              size: "full",
+              aspectRatio: "20:13",
+              aspectMode: "cover"
+            },
+            body: {
+              type: "box",
+              layout: "vertical",
+              contents: [
+                {
+                  type: "text",
+                  text: item.name,
+                  weight: "bold",
+                  size: "xl"
+                },
+                {
+                  type: "text",
+                  text: item.message,
+                  wrap: true,
+                  margin: "md"
+                }
+              ]
+            }
+          }
+        };
+
+        // ส่ง Flex Message
+        liff.sendMessages([{ type: "flex", altText: "ส่งข้อความ", contents: flexMessage }])
+          .then(() => {
+            Swal.fire("สำเร็จ", "ข้อความถูกส่งเรียบร้อยแล้ว", "success");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            Swal.fire("Error", "ไม่สามารถส่งข้อความได้", "error");
+          });
+      }
+
+      // เรียกใช้ฟังก์ชันเริ่มต้น LIFF
+      initializeLIFF();
+    </script>
+  </head>
+  <body>
+    <h1>Share Flex Message</h1>
+    <input type="text" id="flexId" placeholder="Enter ID to share">
+    <button onclick="fetchDataAndSendFlex(document.getElementById('flexId').value)">Share</button>
+  </body>
+</html>
