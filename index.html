@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Share Flex Message by ID</title>
+  <script src="https://static.line-scdn.net/liff/2.18.0/sdk.js"></script>
+</head>
+<body>
+  <input type="text" id="inputId" placeholder="Enter ID">
+  <button id="shareButton">Share Flex Message</button>
+  <script>
+    const liffId = "YOUR_LIFF_ID"; // ใส่ LIFF ID ของคุณ
+    const apiEndpoint = "YOUR_API_URL"; // ใส่ URL ของ Google Apps Script
+
+    async function initLiff() {
+      await liff.init({ liffId });
+      document.getElementById("shareButton").addEventListener("click", shareFlexMessage);
+    }
+
+    async function shareFlexMessage() {
+      const inputId = document.getElementById("inputId").value.trim();
+      if (!inputId) {
+        alert("Please enter an ID.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${apiEndpoint}?id=${inputId}`);
+        const flexMessage = await response.json();
+
+        if (flexMessage.error) {
+          alert(flexMessage.error);
+          return;
+        }
+
+        if (liff.isApiAvailable("shareTargetPicker")) {
+          const result = await liff.shareTargetPicker([
+            {
+              type: "flex",
+              altText: "Check this out!",
+              contents: flexMessage,
+            },
+          ]);
+          if (result) {
+            alert("Message shared successfully!");
+          } else {
+            alert("Share was canceled.");
+          }
+        } else {
+          alert("Share Target Picker not available.");
+        }
+      } catch (error) {
+        console.error("Error sharing message:", error);
+        alert("Failed to share message.");
+      }
+    }
+
+    initLiff();
+  </script>
+</body>
+</html>
